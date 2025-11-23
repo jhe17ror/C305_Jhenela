@@ -101,7 +101,7 @@
   <script>
     function enterPortfolio() {
       // Redirect to your main portfolio page
-      window.location.href = 'portfolio.html'; // Replace with the actual file name of your main page
+      window.location.href = 'portfolio.'; // Replace with the actual file name of your main page
     }
   </script>
 
