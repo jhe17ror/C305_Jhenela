@@ -7,73 +7,52 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-
     /* --------------------- THEME VARIABLES --------------------- */
-
     :root {
       --bg-color: #4a574aff;
       --text-color: #333;
-
       --header-gradient-1: #305e38ff;
       --header-gradient-2: #062e1aff;
       --header-text: #D2DCB6;
-
       --social-text: #B4DEBD;
       --social-border: #B4DEBD;
       --social-hover-bg: #B4DEBD;
       --social-hover-text: #4C763B;
-
       --container-bg: #ECF4E8;
       --shadow-color: rgba(132, 168, 135, 0.1);
-
       --heading-color: #075a44ff;
       --heading-border: #106850ff;
-
       --list-bg: #d4f4dd;
       --list-hover-bg: #8bd696ff;
-
       --contact-hover: #064e3bff;
-
       --footer-text: #948585ff;
-
       --profile-border: #658C58;
       --profile-glow: #ABE7B2;
     }
 
-    /* --------------------- DARK MODE --------------------- */
-
     html[data-theme="dark"] {
       --bg-color: #1d231d;
       --text-color: #e5e5e5;
-
       --header-gradient-1: #1f3c25;
       --header-gradient-2: #021a10;
       --header-text: #b4c59c;
-
       --social-text: #8fbf96;
       --social-border: #8fbf96;
       --social-hover-bg: #8fbf96;
       --social-hover-text: #1f3c25;
-
       --container-bg: #2a302a;
       --shadow-color: rgba(0, 0, 0, 0.4);
-
       --heading-color: #0e8a68;
       --heading-border: #0a6a52;
-
       --list-bg: #3a4a3d;
       --list-hover-bg: #2d7a57;
-
       --contact-hover: #1da77e;
-
       --footer-text: #bdbdbd;
-
       --profile-border: #3e5c3e;
       --profile-glow: #4fa46a;
     }
 
     /* --------------------- DEFAULT STYLING --------------------- */
-
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
@@ -185,63 +164,67 @@
       color: var(--footer-text);
     }
 
-    /* Profile picture hover glow */
     .profile-pic:hover {
       box-shadow: 0 0 20px 5px var(--profile-glow);
       transform: scale(1.05);
     }
 
-    /* Theme toggle button */
-    .theme-toggle {
+    /* Theme & login buttons container */
+    .top-buttons {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #fff;
-      color: #000;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .theme-toggle, .login-toggle {
       border: none;
       padding: 10px 15px;
       border-radius: 20px;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 18px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
       transition: 0.3s;
-      z-index: 1000;
     }
 
-    html[data-theme="dark"] .theme-toggle {
-      background: #2b2b2b;
-      color: #fff;
-    }
+    .theme-toggle { background: #fff; color: #000; }
+    .login-toggle { background: #4C763B; color: #fff; }
 
-    /* Animations */
-    @keyframes fadeInDown {
-      0% { opacity: 0; transform: translateY(-20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
+    html[data-theme="dark"] .theme-toggle { background: #2b2b2b; color: #fff; }
+    html[data-theme="dark"] .login-toggle { background: #1f3c25; color: #fff; }
 
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInContainer { to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeInContainer {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Responsive */
     @media (max-width: 600px) {
       header h1 { font-size: 28px; }
       header p { font-size: 16px; }
       .container { margin: -40px 20px 20px; padding: 30px; }
     }
-
   </style>
 </head>
 
 <body>
 
-  <!-- THEME TOGGLE BUTTON -->
-  <button class="theme-toggle" onclick="toggleTheme()">🐱</button>
+  <div class="top-buttons">
+    <button class="theme-toggle" onclick="toggleTheme()">🐱</button>
+
+    @if(session()->has('logged_in'))
+        <!-- Logout button appears if logged in -->
+        <form method="GET" action="/logout" class="mb-0">
+            <button type="submit" class="login-toggle">Login</button>
+        </form>
+    @else
+        <!-- Login button appears if not logged in -->
+        <a href="{{ url('/login') }}" class="login-toggle">Logout</a>
+    @endif
+</div>
+
+
+
 
   <header>
     <img src="{{ asset('image/IMG_7961.jpeg') }}" class="profile-pic">
@@ -292,28 +275,48 @@
   </footer>
 
   <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      const btn = document.querySelector(".theme-toggle");
-
-      if (html.getAttribute("data-theme") === "light") {
-        html.setAttribute("data-theme", "dark");
-        btn.textContent = "🐶"; // Light mode
-      } else {
-        html.setAttribute("data-theme", "light");
-        btn.textContent = "🐱"; // Dark mode
-      }
+  // Theme toggle
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btn = document.querySelector(".theme-toggle");
+    if (html.getAttribute("data-theme") === "light") {
+      html.setAttribute("data-theme", "dark");
+      btn.textContent = "🐶";
+    } else {
+      html.setAttribute("data-theme", "light");
+      btn.textContent = "🐱";
     }
+  }
 
-    // Fade in container on scroll
-    const container = document.querySelector('.container');
-    window.addEventListener('scroll', () => {
-      const rect = container.getBoundingClientRect();
-      if(rect.top < window.innerHeight - 50){
-        container.style.animation = 'fadeInContainer 1s forwards';
-      }
-    });
-  </script>
+  // Simulated login state
+  let isLoggedIn = false;
+  const loginBtn = document.querySelector('.login-toggle');
+
+  function updateLoginButton() {
+    // Change button text based on login state
+    loginBtn.textContent = isLoggedIn ? 'Logout' : 'Login';
+
+    // Update the click behavior dynamically
+    loginBtn.onclick = () => {
+      isLoggedIn = !isLoggedIn;
+      updateLoginButton();
+      // alert removed
+    };
+  }
+
+  // Initialize login button on page load
+  updateLoginButton();
+
+  // Fade in container on scroll
+  const container = document.querySelector('.container');
+  window.addEventListener('scroll', () => {
+    const rect = container.getBoundingClientRect();
+    if(rect.top < window.innerHeight - 50){
+      container.style.animation = 'fadeInContainer 1s forwards';
+    }
+  });
+</script>
+
 
 </body>
 </html>
